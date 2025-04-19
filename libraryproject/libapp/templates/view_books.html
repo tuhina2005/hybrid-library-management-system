@@ -12,9 +12,11 @@
                 <p class="lead">Discover your next favorite book from our curated collection</p>
             </div>
             <div class="header-action">
+                {% if user.is_staff %}
                 <a href="{% url 'add_book' %}" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>Add New Book
                 </a>
+                {% endif %}
             </div>
         </div>
         <div class="header-decoration"></div>

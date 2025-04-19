@@ -20,74 +20,100 @@
         <div class="header-decoration"></div>
     </div>
 
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, author, or description..." 
+                           value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-2">
+                <select name="type" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Types</option>
+                    {% for type_code, type_name in resource_types %}
+                        <option value="{{ type_code }}" {% if selected_type == type_code %}selected{% endif %}>
+                            {{ type_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    {% for value, label in sort_options %}
+                        <option value="{{ value }}" {% if selected_sort == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
-        {% for resource_type, resources in grouped_resources.items %}
-            {% if resources %}
-                <div class="col-12 mb-4">
-                    <div class="resource-section">
-                        <div class="section-header mb-4">
-                            <h3 class="h3 mb-0">
-                                <i class="fas {% if resource_type == 'BOOK' %}fa-book-reader{% elif resource_type == 'MAGAZINE' %}fa-newspaper{% elif resource_type == 'JOURNAL' %}fa-journal-whills{% else %}fa-file-alt{% endif %} me-2"></i>
-                                {{ resource_type|title }}s
-                            </h3>
+        {% if resources %}
+            {% for resource in resources %}
+                <div class="col-md-4">
+                    <div class="card h-100 resource-card">
+                        <div class="resource-image-wrapper">
+                            {% if resource.cover_image %}
+                                <img src="{{ resource.cover_image.url }}" class="card-img-top" alt="{{ resource.name }}">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <i class="fas {% if resource.type == 'BOOK' %}fa-book{% elif resource.type == 'MAGAZINE' %}fa-newspaper{% elif resource.type == 'JOURNAL' %}fa-journal-whills{% else %}fa-file-alt{% endif %} fa-3x"></i>
+                                </div>
+                            {% endif %}
+                            <div class="resource-overlay">
+                                <a href="{% url 'download_resource' resource.resource_number %}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
                         </div>
                         
-                        <div class="row g-4">
-                            {% for resource in resources %}
-                                <div class="col-md-4">
-                                    <div class="card h-100 resource-card">
-                                        <div class="resource-image-wrapper">
-                                            {% if resource.cover_image %}
-                                                <img src="{{ resource.cover_image.url }}" class="card-img-top" alt="{{ resource.name }}">
-                                            {% else %}
-                                                <div class="placeholder-image">
-                                                    <i class="fas {% if resource.type == 'BOOK' %}fa-book{% elif resource.type == 'MAGAZINE' %}fa-newspaper{% elif resource.type == 'JOURNAL' %}fa-journal-whills{% else %}fa-file-alt{% endif %} fa-3x"></i>
-                                                </div>
-                                            {% endif %}
-                                            <div class="resource-overlay">
-                                                <a href="{% url 'download_resource' resource.resource_number %}" class="btn btn-light btn-lg">
-                                                    <i class="fas fa-download me-2"></i>Download
-                                                </a>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-3">{{ resource.name }}</h5>
-                                            <div class="resource-meta mb-3">
-                                                <div class="meta-item">
-                                                    <i class="fas fa-user text-primary"></i>
-                                                    <span>{{ resource.author }}</span>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <i class="fas fa-file-alt text-info"></i>
-                                                    <span>{{ resource.file_size }}</span>
-                                                </div>
-                                                <div class="meta-item">
-                                                    <i class="fas fa-calendar text-success"></i>
-                                                    <span>{{ resource.upload_date|date:"F d, Y" }}</span>
-                                                </div>
-                                            </div>
-                                            {% if resource.description %}
-                                                <p class="card-text text-muted">{{ resource.description|truncatewords:20 }}</p>
-                                            {% endif %}
-                                        </div>
-                                        <div class="card-footer bg-transparent border-0">
-                                            <a href="{% url 'download_resource' resource.resource_number %}" 
-                                               class="btn btn-outline-primary w-100 resource-download-btn">
-                                                <i class="fas fa-download me-2"></i>Download Now
-                                            </a>
-                                        </div>
-                                    </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">{{ resource.name }}</h5>
+                            <div class="resource-meta mb-3">
+                                <div class="meta-item">
+                                    <i class="fas fa-user text-primary"></i>
+                                    <span>{{ resource.author }}</span>
                                 </div>
-                            {% endfor %}
+                                <div class="meta-item">
+                                    <i class="fas fa-file-alt text-info"></i>
+                                    <span>{{ resource.get_type_display }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar text-success"></i>
+                                    <span>{{ resource.upload_date|date:"F d, Y" }}</span>
+                                </div>
+                            </div>
+                            {% if resource.description %}
+                                <p class="card-text text-muted">{{ resource.description|truncatewords:20 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{% url 'download_resource' resource.resource_number %}" 
+                               class="btn btn-outline-primary w-100 resource-download-btn">
+                                <i class="fas fa-download me-2"></i>Download Now
+                            </a>
                         </div>
                     </div>
                 </div>
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info d-flex align-items-center p-4 shadow-sm">
+                    <i class="fas fa-info-circle me-3 fa-2x"></i>
+                    <div class="fs-5">No digital resources found matching your criteria.</div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
-    {% if not grouped_resources.MAGAZINE and not grouped_resources.JOURNAL and not grouped_resources.BOOK and not grouped_resources.RESEARCH %}
+    {% if not resources %}
         <div class="alert alert-info d-flex align-items-center p-4 shadow-sm">
             <i class="fas fa-info-circle me-3 fa-2x"></i>
             <div class="fs-5">No digital resources available at the moment.</div>
@@ -310,6 +336,39 @@
 .alert {
     border-radius: 15px;
     border: none;
+}
+
+.search-form {
+    margin-bottom: 1rem;
+}
+
+.search-form .input-group {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.search-form .form-control {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+}
+
+.search-form .btn {
+    padding: 0.75rem 1.25rem;
+}
+
+.form-select {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 }
 </style>
 {% endblock %} 

@@ -22,6 +22,7 @@ from .models import BookRequest, AcceptedBookRequest
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
+from django.db import models
 
 # Assuming you have a Book model
 
@@ -117,6 +118,16 @@ class ProfileView(LoginRequiredMixin, DetailView):
             messages.error(self.request, "Student profile not found. Please contact administrator.")
             return None
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Calculate total pending fines
+        total_fines = AcceptedBookRequest.objects.filter(
+            user=self.request.user,
+            is_returned=False
+        ).aggregate(total_fines=models.Sum('fine'))['total_fines'] or 0
+        context['total_fines'] = total_fines
+        return context
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object is None:
@@ -127,6 +138,10 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
 @login_required
 def add_book(request):
+    if not request.user.is_staff:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('view_books')
+        
     if request.method == 'POST':
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
@@ -340,16 +355,49 @@ def cancel_booking(request, booking_id):
 
 @login_required
 def digital_resources(request):
+    # Get filter parameters from request
+    resource_type = request.GET.get('type', '')
+    sort_by = request.GET.get('sort', '-upload_date')
+    search_query = request.GET.get('search', '')
+    
+    # Start with all resources
     resources = DigitalResource.objects.all()
-    # Group resources by type
-    grouped_resources = {
-        'MAGAZINE': resources.filter(type='MAGAZINE'),
-        'JOURNAL': resources.filter(type='JOURNAL'),
-        'BOOK': resources.filter(type='BOOK'),
-        'RESEARCH': resources.filter(type='RESEARCH'),
-    }
+    
+    # Apply type filter if specified
+    if resource_type:
+        resources = resources.filter(type=resource_type)
+    
+    # Apply search filter if specified
+    if search_query:
+        resources = resources.filter(
+            models.Q(name__icontains=search_query) |
+            models.Q(author__icontains=search_query) |
+            models.Q(description__icontains=search_query)
+        )
+    
+    # Apply sorting
+    resources = resources.order_by(sort_by)
+    
+    # Get all available resource types for the filter dropdown
+    resource_types = DigitalResource.RESOURCE_TYPES
+    
+    # Get sort options
+    sort_options = [
+        ('-upload_date', 'Newest First'),
+        ('upload_date', 'Oldest First'),
+        ('name', 'Name (A-Z)'),
+        ('-name', 'Name (Z-A)'),
+        ('author', 'Author (A-Z)'),
+        ('-author', 'Author (Z-A)'),
+    ]
+    
     return render(request, 'libapp/digital_resources.html', {
-        'grouped_resources': grouped_resources
+        'resources': resources,
+        'resource_types': resource_types,
+        'sort_options': sort_options,
+        'selected_type': resource_type,
+        'selected_sort': sort_by,
+        'search_query': search_query,
     })
 
 @login_required

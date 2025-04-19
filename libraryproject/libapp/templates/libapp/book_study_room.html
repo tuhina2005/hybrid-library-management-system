@@ -1,0 +1,308 @@
+{% extends 'libapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="booking-container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">Book Study Room</h2>
+                    <p class="lead text-muted">Reserve your study space at {{ room.room_name }}</p>
+                    <div class="decorative-line"></div>
+                </div>
+
+                <!-- Room Details Card -->
+                <div class="room-details-card mb-5">
+                    <div class="room-icon-large">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="room-info">
+                        <h3 class="room-title">{{ room.room_name }}</h3>
+                        <div class="room-specs">
+                            <span class="spec-item">
+                                <i class="fas fa-users"></i>
+                                Capacity: {{ room.room_capacity }} People
+                            </span>
+                            <span class="spec-item">
+                                <i class="fas fa-hashtag"></i>
+                                Room ID: {{ room.room_id }}
+                            </span>
+                        </div>
+                        {% if room.description %}
+                        <p class="room-description mt-3">{{ room.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Booking Form -->
+                <div class="booking-form-container">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <div class="form-floating mb-4">
+                            <input type="date" class="form-control" id="booking_date" name="booking_date" required>
+                            <label for="booking_date">Booking Date</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <select class="form-select" id="time_slot" name="time_slot" required>
+                                <option value="" selected disabled>Select a time slot</option>
+                                <option value="morning">Morning (9 AM - 12 PM)</option>
+                                <option value="afternoon">Afternoon (1 PM - 4 PM)</option>
+                                <option value="evening">Evening (5 PM - 8 PM)</option>
+                            </select>
+                            <label for="time_slot">Time Slot</label>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label">Purpose of Booking</label>
+                            <div class="purpose-options">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="purpose" id="purpose1" value="individual" required>
+                                    <label class="form-check-label" for="purpose1">
+                                        <i class="fas fa-user"></i>
+                                        Individual Study
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="purpose" id="purpose2" value="group">
+                                    <label class="form-check-label" for="purpose2">
+                                        <i class="fas fa-users"></i>
+                                        Group Study
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="purpose" id="purpose3" value="project">
+                                    <label class="form-check-label" for="purpose3">
+                                        <i class="fas fa-project-diagram"></i>
+                                        Project Work
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <textarea class="form-control" id="notes" name="notes" style="height: 100px"></textarea>
+                            <label for="notes">Additional Notes (Optional)</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Confirm Booking
+                            </button>
+                            <a href="{% url 'study_room_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Room List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.decorative-line {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+.booking-container {
+    background: white;
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.08);
+}
+
+.room-details-card {
+    background: linear-gradient(to right, rgba(var(--bs-primary-rgb), 0.05), rgba(var(--bs-info-rgb), 0.05));
+    border-radius: 15px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.room-icon-large {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, var(--bs-primary), var(--bs-info));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.room-icon-large i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.room-info {
+    flex: 1;
+}
+
+.room-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.room-specs {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.spec-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.spec-item i {
+    color: var(--bs-primary);
+}
+
+.room-description {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.booking-form-container {
+    margin-top: 3rem;
+}
+
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 1rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.purpose-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.form-check {
+    padding: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.form-check:hover {
+    border-color: var(--bs-primary);
+    background: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+.form-check-input:checked ~ .form-check-label {
+    color: var(--bs-primary);
+}
+
+.form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-check-label i {
+    font-size: 1.25rem;
+    color: var(--bs-primary);
+}
+
+.btn {
+    padding: 1rem;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-lg {
+    font-size: 1.1rem;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .booking-container {
+        padding: 2rem;
+    }
+
+    .room-details-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .room-specs {
+        justify-content: center;
+    }
+
+    .purpose-options {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Set minimum date to today
+document.addEventListener('DOMContentLoaded', function() {
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('booking_date').setAttribute('min', today);
+});
+</script>
+{% endblock %} 

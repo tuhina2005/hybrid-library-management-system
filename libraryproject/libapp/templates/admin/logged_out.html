@@ -1,0 +1,154 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    body {
+        background: linear-gradient(rgba(26, 28, 30, 0.95), rgba(26, 28, 30, 0.95)), url("{% static 'libapp/images/library-bg.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    #container {
+        background: transparent;
+    }
+
+    #header {
+        background: transparent;
+        box-shadow: none;
+        border-bottom: none;
+    }
+
+    #content {
+        padding: 0;
+    }
+
+    .logout-container {
+        background: white;
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 3rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .logout-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+    }
+
+    .logout-icon i {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .logout-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        letter-spacing: -0.022em;
+    }
+
+    .logout-message {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        letter-spacing: -0.011em;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .login-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .login-link:hover {
+        background: #5b4cc4;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .home-link {
+        display: block;
+        margin-top: 1.5rem;
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
+
+    .home-link:hover {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .logout-container {
+            margin: 1rem;
+            padding: 2rem;
+        }
+
+        .logout-title {
+            font-size: 1.75rem;
+        }
+
+        .logout-message {
+            font-size: 1rem;
+        }
+
+        .login-link {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <i class="fas fa-book-reader"></i>
+        Library Management System
+    </a>
+</h1>
+{% endblock %}
+
+{% block content %}
+<div class="logout-container">
+    <div class="logout-icon">
+        <i class="fas fa-check"></i>
+    </div>
+    <h1 class="logout-title">{% translate "Logged Out Successfully" %}</h1>
+    <p class="logout-message">
+        {% translate "Thanks for spending some time with the Library Management System today." %}
+    </p>
+    <a href="{% url 'admin:login' %}" class="login-link">
+        <i class="fas fa-sign-in-alt"></i>
+        {% translate 'Log in again' %}
+    </a>
+    <a href="/" class="home-link">
+        <i class="fas fa-home"></i>
+        {% translate 'Return to home page' %}
+    </a>
+</div>
+{% endblock %} 

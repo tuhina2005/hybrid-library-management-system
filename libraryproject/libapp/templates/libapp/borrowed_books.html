@@ -1,0 +1,319 @@
+{% extends 'libapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="page-header mb-5">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="display-4 fw-bold">Currently Borrowed Books</h1>
+                <p class="lead">Manage and track your borrowed items</p>
+            </div>
+            <div class="header-action">
+                <a href="{% url 'view_books' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-book me-2"></i>View All Books
+                </a>
+            </div>
+        </div>
+        <div class="header-decoration"></div>
+    </div>
+
+    <div class="row g-4">
+        {% for book in borrowed_books %}
+        <div class="col-md-6 col-lg-4">
+            <div class="book-card card h-100">
+                <div class="book-image-wrapper">
+                    {% if book.book_image %}
+                    <img src="{{ book.book_image.url }}" class="card-img-top" alt="{{ book.book_name }}">
+                    {% else %}
+                    <div class="placeholder-image">
+                        <i class="fas fa-book fa-3x"></i>
+                    </div>
+                    {% endif %}
+                    <div class="book-overlay">
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-info-circle me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title book-title">{{ book.book_name }}</h5>
+                    <p class="card-text book-author">
+                        <i class="fas fa-user-edit me-2 text-primary"></i>{{ book.author }}
+                    </p>
+                    
+                    <div class="borrow-details">
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-check text-success"></i>
+                            <span>Borrowed: {{ book.borrow_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-times text-warning"></i>
+                            <span>Due: {{ book.due_date|date:"F d, Y" }}</span>
+                        </div>
+                        {% if book.overdue %}
+                        <div class="detail-item">
+                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                            <span class="text-danger">Overdue</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'return_book' book.id %}" class="btn btn-success">
+                            <i class="fas fa-undo me-2"></i>Return Book
+                        </a>
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-info-circle me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center empty-state">
+                <div class="empty-icon mb-4">
+                    <i class="fas fa-book-open fa-4x text-muted"></i>
+                </div>
+                <h3 class="h4 mb-3">No Borrowed Books</h3>
+                <p class="text-muted">You haven't borrowed any books yet.</p>
+                <a href="{% url 'view_books' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-book me-2"></i>Browse Books
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.header-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.header-text {
+    flex: 1;
+    color: white;
+}
+
+.header-text h1 {
+    margin-bottom: 0.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    letter-spacing: -0.022em;
+}
+
+.header-text .lead {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: -0.011em;
+}
+
+.header-action {
+    flex-shrink: 0;
+}
+
+.header-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.book-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    background: white;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.book-image-wrapper {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+}
+
+.book-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    color: #adb5bd;
+}
+
+.book-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.book-card:hover .book-overlay {
+    opacity: 1;
+}
+
+.book-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.022em;
+}
+
+.book-author {
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    letter-spacing: -0.011em;
+}
+
+.borrow-details {
+    margin-top: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    letter-spacing: -0.011em;
+}
+
+.detail-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.empty-state {
+    padding: 3rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+    color: #dee2e6;
+}
+
+.btn {
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.3s;
+    letter-spacing: -0.011em;
+}
+
+.btn-success {
+    background: #27ae60;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .book-image-wrapper {
+        height: 200px;
+    }
+    
+    .page-header {
+        padding: 1.5rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .header-icon i {
+        font-size: 2rem;
+    }
+
+    .header-text h1 {
+        font-size: 2rem;
+        letter-spacing: -0.022em;
+    }
+
+    .header-text .lead {
+        font-size: 1.1rem;
+        letter-spacing: -0.011em;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowed Books History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://acerforeducation.acer.com/wp-content/uploads/2020/11/Digital-Libraries-BL-banner.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .book-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .book-item {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .book-info {
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .status-returned {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-overdue {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .status-current {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .no-books {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .back-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Borrowed Books History</h1>
+        {% if borrowed_history %}
+            <ul class="book-list">
+                {% for borrowed in borrowed_history %}
+                    <li class="book-item">
+                        <div class="book-title">{{ borrowed.details.book.book_name }}</div>
+                        <div class="book-info">Author: {{ borrowed.details.book.author }}</div>
+                        <div class="book-info">Book ID: {{ borrowed.details.book.book_id }}</div>
+                        <div class="book-info">Borrowed Date: {{ borrowed.accepted_date|date:"F d, Y" }}</div>
+                        <div class="book-info">Return Date: {{ borrowed.return_date|date:"F d, Y" }}</div>
+                        {% if borrowed.fine > 0 %}
+                            <div class="book-info" style="color: #dc3545;">Fine Amount: ₹{{ borrowed.fine }}</div>
+                        {% endif %}
+                        {% now "Y-m-d" as today %}
+                        {% if borrowed.return_date|date:"Y-m-d" < today %}
+                            <span class="status status-returned">Returned</span>
+                        {% elif borrowed.return_date|date:"Y-m-d" == today %}
+                            <span class="status status-current">Due Today</span>
+                        {% else %}
+                            <span class="status status-current">Currently Borrowed</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-books">You haven't borrowed any books yet.</p>
+        {% endif %}
+        <a href="{% url 'profile' %}" class="back-button">Back to Profile</a>
+    </div>
+</body>
+</html> 

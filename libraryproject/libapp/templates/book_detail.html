@@ -1,47 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ book.book_name }} Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        img {
-            margin-bottom: 20px;
-            max-width: 100%;
-            height: auto;
-        }
-        p {
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <h1>{{ book.book_name }}</h1>
-    <img src="{{ book.book_image.url }}" alt="{{ book.book_name }}">
-    <p><strong>Author:</strong> {{ book.author }}</p>
-    <p><strong>Description:</strong> {{ book.description }}</p>
-    <p><strong>Available Copies:</strong> {{ book.available_copies }}</p>
-    <a href="{% url 'create_request' pk=book.id %}"><button>Request</button></a>
+{% extends 'libapp/base.html' %}
 
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'view_books' %}" class="text-decoration-none"><i class="fas fa-book me-1"></i>Library</a></li>
+            <li class="breadcrumb-item active">{{ book.book_name }}</li>
+        </ol>
+    </nav>
 
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="position-sticky" style="top: 2rem;">
+                <div class="card shadow-sm">
+                    <div class="book-image-wrapper">
+                        {% if book.book_image %}
+                        <img src="{{ book.book_image.url }}" class="card-img-top" alt="{{ book.book_name }}" style="height: 400px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <i class="fas fa-book fa-4x text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="availability-badge mb-3">
+                            <span class="badge {% if book.available_copies > 0 %}bg-success{% else %}bg-danger{% endif %} p-2">
+                                {% if book.available_copies > 0 %}
+                                    <i class="fas fa-check-circle me-1"></i>{{ book.available_copies }} Copies Available
+                                {% else %}
+                                    <i class="fas fa-times-circle me-1"></i>Currently Unavailable
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if book.available_copies > 0 %}
+                        <a href="{% url 'create_request' pk=book.id %}" class="btn btn-primary btn-lg w-100 mb-2">
+                            <i class="fas fa-bookmark me-2"></i>Request Book
+                        </a>
+                        {% else %}
+                        <button class="btn btn-secondary btn-lg w-100 mb-2" disabled>
+                            <i class="fas fa-exclamation-circle me-2"></i>Not Available
+                        </button>
+                        {% endif %}
+                        <a href="{% url 'view_books' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="display-5 mb-4">{{ book.book_name }}</h1>
+                    
+                    <div class="mb-4">
+                        <h5 class="text-muted mb-3">
+                            <i class="fas fa-user-edit me-2"></i>Author
+                        </h5>
+                        <p class="fs-5">{{ book.author }}</p>
+                    </div>
 
-</body>
-</html>
+                    <div class="mb-4">
+                        <h5 class="text-muted mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Description
+                        </h5>
+                        <p class="fs-6 lh-lg">{{ book.description }}</p>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="text-muted mb-3">
+                                <i class="fas fa-lightbulb me-2"></i>Quick Tips
+                            </h5>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-clock me-2 text-primary"></i>Standard borrowing period is 5 days</li>
+                                <li class="mb-2"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Late returns incur a fine of ₹10 per day</li>
+                                <li><i class="fas fa-redo me-2 text-success"></i>You can renew your borrowed books if no one else has requested them</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.book-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.book-image-wrapper img {
+    transition: transform 0.3s ease;
+}
+
+.book-image-wrapper:hover img {
+    transform: scale(1.05);
+}
+
+.badge {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.breadcrumb-item a {
+    color: #6c757d;
+}
+
+.breadcrumb-item a:hover {
+    color: #0d6efd;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.lh-lg {
+    line-height: 1.8 !important;
+}
+</style>
+{% endblock %}

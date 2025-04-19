@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-light: #a29bfe;
+            --text-dark: #2c3e50;
+            --text-light: #6c757d;
+            --bg-dark: #1a1c1e;
+            --bg-darker: #151718;
+            --bg-light: #f8f9fa;
+            --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --navbar-height: 60px;  /* Reduced navbar height */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.011em;
+            line-height: 1.5;
+            padding-top: calc(var(--navbar-height) + 1rem);  /* Increased padding for better spacing */
+        }
+
+        h1, h2, h3, h4, h5, h6, .display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            letter-spacing: -0.022em;
+            line-height: 1.2;
+        }
+
+        .lead {
+            font-family: var(--font-text);
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            line-height: 1.5;
+        }
+
+        .btn {
+            font-family: var(--font-system);
+            font-weight: 500;
+            letter-spacing: -0.011em;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            letter-spacing: -0.022em;
+        }
+
+        .card-text {
+            font-family: var(--font-text);
+            letter-spacing: -0.011em;
+        }
+
+        .navbar {
+            background: var(--bg-dark);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            height: var(--navbar-height);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white;
+            letter-spacing: -0.022em;
+            padding: 0.25rem 0;
+        }
+
+        .navbar-brand:hover {
+            color: var(--primary-light);
+        }
+
+        .nav-link {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-darker);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-link:hover i {
+            color: white;
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.5rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.25rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-nav {
+                padding: 0.5rem 0;
+                background: var(--bg-darker);
+                border-radius: 8px;
+                margin-top: 0.5rem;
+            }
+
+            .nav-link {
+                padding: 0.75rem 1.25rem;
+                margin: 0.25rem 0.5rem;
+            }
+
+            .logout-btn {
+                margin: 0.5rem;
+                justify-content: center;
+                padding: 0.75rem 1.25rem;
+            }
+        }
+
+        /* Adjust main content spacing */
+        .container {
+            padding-top: 1.5rem;  /* Add consistent top padding to all containers */
+            padding-bottom: 2rem;  /* Add bottom padding for better spacing */
+        }
+
+        /* Enhanced text rendering */
+        .text-rendering {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Responsive typography */
+        @media (max-width: 768px) {
+            h1, .display-4 {
+                font-size: 2rem;
+                letter-spacing: -0.022em;
+            }
+            
+            .lead {
+                font-size: 1.1rem;
+                letter-spacing: -0.011em;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'profile' %}">Library System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'view_books' %}active{% endif %}" href="{% url 'view_books' %}">
+                            <i class="fas fa-book"></i>
+                            View Books
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'study_room_list' %}active{% endif %}" href="{% url 'study_room_list' %}">
+                            <i class="fas fa-door-open"></i>
+                            Study Rooms
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'my_bookings' %}active{% endif %}" href="{% url 'my_bookings' %}">
+                            <i class="fas fa-calendar-check"></i>
+                            My Bookings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'borrowed_books' %}active{% endif %}" href="{% url 'borrowed_books' %}">
+                            <i class="fas fa-book-reader"></i>
+                            Borrowed Books
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'digital_resources' %}active{% endif %}" href="{% url 'digital_resources' %}">
+                            <i class="fas fa-laptop"></i>
+                            Digital Resources
+                        </a>
+                    </li>
+                </ul>
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

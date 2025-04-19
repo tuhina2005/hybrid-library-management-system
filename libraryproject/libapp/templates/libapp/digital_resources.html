@@ -1,0 +1,315 @@
+{% extends 'libapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="page-header mb-5">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-laptop-code"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="display-4 fw-bold">Digital Resources</h1>
+                <p class="lead">Access our collection of digital materials</p>
+            </div>
+            <div class="header-action">
+                <a href="{% url 'view_books' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-book me-2"></i>View All Books
+                </a>
+            </div>
+        </div>
+        <div class="header-decoration"></div>
+    </div>
+
+    <div class="row g-4">
+        {% for resource_type, resources in grouped_resources.items %}
+            {% if resources %}
+                <div class="col-12 mb-4">
+                    <div class="resource-section">
+                        <div class="section-header mb-4">
+                            <h3 class="h3 mb-0">
+                                <i class="fas {% if resource_type == 'BOOK' %}fa-book-reader{% elif resource_type == 'MAGAZINE' %}fa-newspaper{% elif resource_type == 'JOURNAL' %}fa-journal-whills{% else %}fa-file-alt{% endif %} me-2"></i>
+                                {{ resource_type|title }}s
+                            </h3>
+                        </div>
+                        
+                        <div class="row g-4">
+                            {% for resource in resources %}
+                                <div class="col-md-4">
+                                    <div class="card h-100 resource-card">
+                                        <div class="resource-image-wrapper">
+                                            {% if resource.cover_image %}
+                                                <img src="{{ resource.cover_image.url }}" class="card-img-top" alt="{{ resource.name }}">
+                                            {% else %}
+                                                <div class="placeholder-image">
+                                                    <i class="fas {% if resource.type == 'BOOK' %}fa-book{% elif resource.type == 'MAGAZINE' %}fa-newspaper{% elif resource.type == 'JOURNAL' %}fa-journal-whills{% else %}fa-file-alt{% endif %} fa-3x"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="resource-overlay">
+                                                <a href="{% url 'download_resource' resource.resource_number %}" class="btn btn-light btn-lg">
+                                                    <i class="fas fa-download me-2"></i>Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-3">{{ resource.name }}</h5>
+                                            <div class="resource-meta mb-3">
+                                                <div class="meta-item">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                    <span>{{ resource.author }}</span>
+                                                </div>
+                                                <div class="meta-item">
+                                                    <i class="fas fa-file-alt text-info"></i>
+                                                    <span>{{ resource.file_size }}</span>
+                                                </div>
+                                                <div class="meta-item">
+                                                    <i class="fas fa-calendar text-success"></i>
+                                                    <span>{{ resource.upload_date|date:"F d, Y" }}</span>
+                                                </div>
+                                            </div>
+                                            {% if resource.description %}
+                                                <p class="card-text text-muted">{{ resource.description|truncatewords:20 }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer bg-transparent border-0">
+                                            <a href="{% url 'download_resource' resource.resource_number %}" 
+                                               class="btn btn-outline-primary w-100 resource-download-btn">
+                                                <i class="fas fa-download me-2"></i>Download Now
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if not grouped_resources.MAGAZINE and not grouped_resources.JOURNAL and not grouped_resources.BOOK and not grouped_resources.RESEARCH %}
+        <div class="alert alert-info d-flex align-items-center p-4 shadow-sm">
+            <i class="fas fa-info-circle me-3 fa-2x"></i>
+            <div class="fs-5">No digital resources available at the moment.</div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.header-text {
+    flex: 1;
+    color: white;
+}
+
+.header-text h1 {
+    margin-bottom: 0.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-text .lead {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+.header-action {
+    flex-shrink: 0;
+}
+
+.header-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.btn-primary {
+    background: white;
+    color: #e74c3c;
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        padding: 1.5rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .header-icon i {
+        font-size: 2rem;
+    }
+
+    .header-text h1 {
+        font-size: 2rem;
+    }
+}
+
+.decorative-line {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+.resource-section {
+    padding: 2rem;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    position: relative;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.resource-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.resource-image-wrapper {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.resource-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    color: #adb5bd;
+}
+
+.resource-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.resource-card:hover .resource-overlay {
+    opacity: 1;
+}
+
+.resource-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.meta-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.resource-download-btn {
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.resource-download-btn:hover {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.alert {
+    border-radius: 15px;
+    border: none;
+}
+</style>
+{% endblock %} 

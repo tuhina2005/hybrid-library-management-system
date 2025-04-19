@@ -1,67 +1,240 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the Library Management System</title>
-    <style>
-        /* Style for the navigation bar */
-        .navbar {
-            overflow: hidden;
-            background-color: #333; /* Dark background color */
-        }
+{% extends 'libapp/base.html' %}
+{% load static %}
 
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 20px;
-            text-decoration: none;
-        }
+{% block title %}Welcome to Library Management System{% endblock %}
 
-        /* Change color on hover */
-        .navbar a:hover {
-            background-color: #ddd; /* Light background color */
-            color: black;
-        }
-
-        /* Style for the content section */
-        .content {
-            padding: 20px;
-            text-align: center;
-            background-image: url('https://wallpaperaccess.com/full/892736.jpg'); /* Background image URL */
-            background-size: cover;
-            background-position: center;
-            height: 100vh; /* Set the height to fill the viewport */
-        }
-
-        /* Style for the heading and paragraph */
-        h1, p {
-            color: white; /* Text color */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Text shadow for better readability */
-        }
-
-        /* Style for the right-aligned buttons */
-        .navbar .right-buttons {
-            float: right;
-        }
-    </style>
-</head>
-<body>
-
-<div class="navbar">
-    <div class="right-buttons">
-        <a href="{% url 'user_register' %}">Register</a>
-        <a href="{% url 'student_login' %}">Login</a>
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to Your Digital Library Hub</h1>
+        <p class="hero-subtitle">Discover, Learn, and Manage Your Library Resources</p>
+        <div class="hero-buttons">
+            <a href="{% url 'student_login' %}" class="btn-primary">
+                <i class="fas fa-sign-in-alt"></i>
+                Student Sign In
+            </a>
+            <a href="{% url 'user_register' %}" class="btn-secondary">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </a>
+            <a href="/admin/" class="btn-admin">
+                <i class="fas fa-user-shield"></i>
+                Admin Portal
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="content">
-    <h1>Welcome to My Library Management System</h1><br><br>
-    <p>This is a platform to manage your library resources efficiently.</p>
+<div class="features-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Digital Catalog</h3>
+                    <p>Access thousands of books and resources from our extensive digital collection.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h3>Study Rooms</h3>
+                    <p>Book private study rooms for individual or group study sessions.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3>Digital Resources</h3>
+                    <p>Access online journals, research papers, and educational content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-</body>
-</html>
+<style>
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        background-image: linear-gradient(rgba(26, 28, 30, 0.95), rgba(26, 28, 30, 0.95)), url('{% static "libapp/images/library-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 6rem 1rem 4rem;
+        margin-top: -76px; /* Offset for fixed navbar */
+    }
+
+    .hero-content {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.022em;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2.5rem;
+        letter-spacing: -0.011em;
+        line-height: 1.4;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .btn-primary, .btn-secondary, .btn-admin {
+        padding: 1.25rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.25rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #5b4cc4;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .btn-admin {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-admin:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .features-section {
+        background: white;
+        padding: 6rem 0;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+    }
+
+    .feature-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .feature-card h3 {
+        color: var(--text-dark);
+        font-size: 1.75rem;
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+    }
+
+    .feature-card p {
+        color: var(--text-light);
+        font-size: 1.15rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 3rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+        }
+
+        .btn-primary, .btn-secondary, .btn-admin {
+            width: 100%;
+            justify-content: center;
+            padding: 1.15rem 2rem;
+            font-size: 1.2rem;
+        }
+
+        .features-section {
+            padding: 4rem 0;
+        }
+
+        .feature-card {
+            padding: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.6rem;
+        }
+
+        .feature-card p {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}
 

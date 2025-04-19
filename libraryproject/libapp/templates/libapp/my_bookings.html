@@ -1,0 +1,283 @@
+{% extends 'libapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="page-header mb-5">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="display-4 fw-bold">My Study Room Bookings</h1>
+                <p class="lead">Manage your study room reservations</p>
+            </div>
+            <div class="header-action">
+                <a href="{% url 'study_room_list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Book New Room
+                </a>
+            </div>
+        </div>
+        <div class="header-decoration"></div>
+    </div>
+
+    {% if bookings %}
+        <div class="row g-4">
+            {% for booking in bookings %}
+            <div class="col-md-6 col-lg-4">
+                <div class="booking-card card h-100 {% if booking.status == 'approved' %}border-success{% elif booking.status == 'pending' %}border-warning{% else %}border-danger{% endif %}">
+                    <div class="card-header {% if booking.status == 'approved' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                        <div class="d-flex align-items-center">
+                            <div class="booking-icon me-3">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">{{ booking.room.room_name }}</h5>
+                                <small>Room #{{ booking.room.room_id }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="booking-details">
+                            <div class="detail-item">
+                                <i class="fas fa-calendar me-2"></i>
+                                <span>Booking Date: {{ booking.booking_date }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock me-2"></i>
+                                <span>Requested: {{ booking.request_date|date:"F d, Y H:i" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span>Status: 
+                                    <span class="badge {% if booking.status == 'approved' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ booking.status|title }}
+                                    </span>
+                                </span>
+                            </div>
+                            {% if booking.remarks %}
+                            <div class="detail-item">
+                                <i class="fas fa-comment me-2"></i>
+                                <span>Remarks: {{ booking.remarks }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        {% if booking.status != 'rejected' and booking.booking_date|date:"Y-m-d" >= today|date:"Y-m-d" %}
+                        <form method="post" action="{% url 'cancel_booking' booking.id %}" class="d-grid">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                <i class="fas fa-times me-2"></i>Cancel Booking
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center empty-state">
+            <div class="empty-icon mb-4">
+                <i class="fas fa-calendar-times fa-4x text-muted"></i>
+            </div>
+            <h3 class="h4 mb-3">No Bookings Found</h3>
+            <p class="text-muted">You haven't made any room bookings yet.</p>
+            <a href="{% url 'study_room_list' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-2"></i>Book a Room Now
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-info) 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.header-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.header-text {
+    flex: 1;
+    color: white;
+}
+
+.header-text h1 {
+    margin-bottom: 0.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-text .lead {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
+
+.header-action {
+    flex-shrink: 0;
+}
+
+.header-decoration {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.btn-primary {
+    background: white;
+    color: var(--bs-primary);
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.decorative-line {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+.booking-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+}
+
+.booking-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.booking-icon i {
+    font-size: 1.25rem;
+}
+
+.booking-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+}
+
+.detail-item i {
+    width: 20px;
+    color: var(--bs-primary);
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.empty-state {
+    padding: 3rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+    color: #dee2e6;
+}
+
+.btn {
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        padding: 1.5rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .header-icon i {
+        font-size: 2rem;
+    }
+
+    .header-text h1 {
+        font-size: 2rem;
+    }
+
+    .booking-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %} 

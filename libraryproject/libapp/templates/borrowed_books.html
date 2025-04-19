@@ -1,0 +1,214 @@
+{% extends 'libapp/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 class="display-4 fw-bold">Currently Borrowed Books</h2>
+        <p class="lead text-muted">Manage your borrowed books and return dates</p>
+        <div class="decorative-line"></div>
+    </div>
+
+    {% if borrowed_books %}
+    <div class="row g-4">
+        {% for borrowed in borrowed_books %}
+        <div class="col-md-6 col-lg-4">
+            <div class="book-card card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="book-header mb-4">
+                        <div class="book-image-wrapper mb-3">
+                            {% if borrowed.details.book.book_image %}
+                            <img src="{{ borrowed.details.book.book_image.url }}" alt="{{ borrowed.details.book.book_name }}" class="book-image">
+                            {% else %}
+                            <div class="placeholder-image">
+                                <i class="fas fa-book fa-3x"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h5 class="book-title">{{ borrowed.details.book.book_name }}</h5>
+                        <p class="book-author text-muted">
+                            <i class="fas fa-user-edit me-1"></i>{{ borrowed.details.book.author }}
+                        </p>
+                    </div>
+
+                    <div class="book-details">
+                        <div class="detail-item">
+                            <i class="fas fa-hashtag text-primary"></i>
+                            <span>Book ID: {{ borrowed.details.book.book_id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-plus text-success"></i>
+                            <span>Borrowed: {{ borrowed.accepted_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-times text-warning"></i>
+                            <span>Return by: {{ borrowed.return_date|date:"F d, Y" }}</span>
+                        </div>
+                        {% if borrowed.fine > 0 %}
+                        <div class="detail-item fine-alert">
+                            <i class="fas fa-exclamation-circle text-danger"></i>
+                            <span>Fine Amount: ₹{{ borrowed.fine }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% now "Y-m-d" as today %}
+                    {% if borrowed.return_date|date:"Y-m-d" < today %}
+                    <div class="status-badge overdue">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Overdue
+                    </div>
+                    {% elif borrowed.return_date|date:"Y-m-d" == today %}
+                    <div class="status-badge due-today">
+                        <i class="fas fa-clock me-1"></i>
+                        Due Today
+                    </div>
+                    {% else %}
+                    <div class="status-badge active">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Active
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center empty-state">
+        <div class="empty-icon mb-4">
+            <i class="fas fa-books fa-4x text-muted"></i>
+        </div>
+        <h3 class="h4 mb-3">No Books Currently Borrowed</h3>
+        <p class="text-muted mb-4">You haven't borrowed any books yet. Visit our library to discover amazing books!</p>
+        <a href="{% url 'view_books' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-book me-2"></i>Browse Books
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.decorative-line {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+.book-card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.book-image-wrapper {
+    width: 120px;
+    height: 160px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.book-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    color: #adb5bd;
+}
+
+.book-title {
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.book-author {
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.book-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.fine-alert {
+    background: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.status-badge.active {
+    background: rgba(var(--bs-success-rgb), 0.1);
+    color: var(--bs-success);
+}
+
+.status-badge.due-today {
+    background: rgba(var(--bs-warning-rgb), 0.1);
+    color: var(--bs-warning);
+}
+
+.status-badge.overdue {
+    background: rgba(var(--bs-danger-rgb), 0.1);
+    color: var(--bs-danger);
+}
+
+.empty-state {
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2rem;
+}
+
+.empty-icon {
+    color: #dee2e6;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 10px;
+}
+</style>
+{% endblock %} 

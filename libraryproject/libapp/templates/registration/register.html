@@ -1,111 +1,446 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-image: url('https://i.pinimg.com/originals/ef/b0/d4/efb0d4e1bf7c7087f58f082eae5d4f27.png'); /* Background image URL */
-            background-size: cover;
-            background-position: center;
-            margin: 0;
-            padding: 0;
-        }
+{% extends 'libapp/base.html' %}
+{% load static %}
 
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+{% block title %}Create Account - Library Management System{% endblock %}
 
-        h2 {
-            text-align: center;
-            color: #333;
-        }
+{% block content %}
+<div class="register-wrapper">
+    <div class="register-container">
+        <div class="register-header">
+            <h1 class="register-title">Create Account</h1>
+            <p class="register-subtitle">Join our library community today</p>
+        </div>
 
-        form {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-            font-size: 14px; /* Smaller font size */
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 14px; /* Smaller font size */
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px; /* Smaller font size */
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Student Registration</h2>
-        <form method="post">
+        <form method="post" class="register-form">
             {% csrf_token %}
+            
+            {% if user_form.errors or student_form.errors %}
+            <div class="alert alert-danger">
+                Please correct the errors below.
+            </div>
+            {% endif %}
 
-            <label for="id_username">Username</label>
-            {{ user_form.username }}
+            <div class="form-section">
+                <h5 class="section-title">Account Information</h5>
+                
+                <div class="form-group">
+                    <label for="{{ user_form.username.id_for_label }}" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <div class="input-group">
+                        {{ user_form.username }}
+                    </div>
+                    {% if user_form.username.errors %}
+                    <div class="error-feedback">
+                        {% for error in user_form.username.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
-            <label for="id_first_name">First Name</label>
-            {{ user_form.first_name }}
+                <div class="form-group">
+                    <label for="{{ user_form.email.id_for_label }}" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <div class="input-group">
+                        {{ user_form.email }}
+                    </div>
+                    {% if user_form.email.errors %}
+                    <div class="error-feedback">
+                        {% for error in user_form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
-            <label for="id_last_name">Last Name</label>
-            {{ user_form.last_name }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-circle"></i>
+                                First Name
+                            </label>
+                            <div class="input-group">
+                                {{ user_form.first_name }}
+                            </div>
+                            {% if user_form.first_name.errors %}
+                            <div class="error-feedback">
+                                {% for error in user_form.first_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-user-circle"></i>
+                                Last Name
+                            </label>
+                            <div class="input-group">
+                                {{ user_form.last_name }}
+                            </div>
+                            {% if user_form.last_name.errors %}
+                            <div class="error-feedback">
+                                {% for error in user_form.last_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
-            <label for="id_email">Email</label>
-            {{ user_form.email }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ user_form.password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Password
+                            </label>
+                            <div class="input-group">
+                                {{ user_form.password }}
+                            </div>
+                            {% if user_form.password.errors %}
+                            <div class="error-feedback">
+                                {% for error in user_form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ user_form.confirm_password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock"></i>
+                                Confirm Password
+                            </label>
+                            <div class="input-group">
+                                {{ user_form.confirm_password }}
+                            </div>
+                            {% if user_form.confirm_password.errors %}
+                            <div class="error-feedback">
+                                {% for error in user_form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <label for="id_phone_no">Phone Number</label>
-            {{ student_form.phone_no }}
+            <div class="form-section">
+                <h5 class="section-title">Student Information</h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ student_form.phone_no.id_for_label }}" class="form-label">
+                                <i class="fas fa-phone"></i>
+                                Phone Number
+                            </label>
+                            <div class="input-group">
+                                {{ student_form.phone_no }}
+                            </div>
+                            {% if student_form.phone_no.errors %}
+                            <div class="error-feedback">
+                                {% for error in student_form.phone_no.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ student_form.department.id_for_label }}" class="form-label">
+                                <i class="fas fa-graduation-cap"></i>
+                                Department
+                            </label>
+                            <div class="input-group">
+                                {{ student_form.department }}
+                            </div>
+                            {% if student_form.department.errors %}
+                            <div class="error-feedback">
+                                {% for error in student_form.department.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
-            <label for="id_department">Department</label>
-            {{ student_form.department }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ student_form.roll_number.id_for_label }}" class="form-label">
+                                <i class="fas fa-id-card"></i>
+                                Roll Number
+                            </label>
+                            <div class="input-group">
+                                {{ student_form.roll_number }}
+                            </div>
+                            {% if student_form.roll_number.errors %}
+                            <div class="error-feedback">
+                                {% for error in student_form.roll_number.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ student_form.registered_id.id_for_label }}" class="form-label">
+                                <i class="fas fa-fingerprint"></i>
+                                Registered ID
+                            </label>
+                            <div class="input-group">
+                                {{ student_form.registered_id }}
+                            </div>
+                            {% if student_form.registered_id.errors %}
+                            <div class="error-feedback">
+                                {% for error in student_form.registered_id.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
-            <label for="id_roll_number">Roll Number</label>
-            {{ student_form.roll_number }}
+                <div class="form-group">
+                    <label for="{{ student_form.college_name.id_for_label }}" class="form-label">
+                        <i class="fas fa-university"></i>
+                        College Name
+                    </label>
+                    <div class="input-group">
+                        {{ student_form.college_name }}
+                    </div>
+                    {% if student_form.college_name.errors %}
+                    <div class="error-feedback">
+                        {% for error in student_form.college_name.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
 
-            <label for="id_registered_id">Registered ID</label>
-            {{ student_form.registered_id }}
+            <button type="submit" class="register-button">
+                <span>Create Account</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
 
-            <label for="id_college_name">College Name</label>
-            {{ student_form.college_name }}
-
-            <button type="submit">Register</button>
+            <div class="register-footer">
+                <p>Already have an account? <a href="{% url 'student_login' %}" class="login-link">Sign In</a></p>
+            </div>
         </form>
     </div>
-</body>
-</html>
+</div>
+
+    <style>
+    .register-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        margin-top: -60px;
+        background: linear-gradient(rgba(26, 28, 30, 0.95), rgba(26, 28, 30, 0.95)), url("{% static 'libapp/images/library-bg.jpg' %}");
+            background-size: cover;
+            background-position: center;
+        background-attachment: fixed;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 800px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        transform: translateY(0);
+        transition: transform 0.3s ease;
+        margin-top: 60px;
+    }
+
+    .register-container:hover {
+        transform: translateY(-5px);
+    }
+
+    .register-header {
+            text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .register-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.022em;
+    }
+
+    .register-subtitle {
+        color: var(--text-light);
+        font-size: 1rem;
+        letter-spacing: -0.011em;
+    }
+
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.022em;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+            display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-label i {
+        color: var(--primary-color);
+        font-size: 1rem;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+        background-color: #fff;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .input-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+        outline: none;
+    }
+
+    .error-feedback {
+        margin-top: 0.5rem;
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .alert-danger {
+        background-color: #fff5f5;
+        color: #dc3545;
+        border: 1px solid #ffebeb;
+    }
+
+    .register-button {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .register-button:hover {
+        background: #5b4cc4;
+        transform: translateY(-2px);
+    }
+
+    .register-button:active {
+        transform: translateY(0);
+    }
+
+    .register-button i {
+        transition: transform 0.3s ease;
+    }
+
+    .register-button:hover i {
+        transform: translateX(4px);
+    }
+
+    .register-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .login-link {
+        color: var(--primary-color);
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .login-link:hover {
+        color: #5b4cc4;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .register-container {
+            padding: 2rem;
+        }
+
+        .register-title {
+            font-size: 1.75rem;
+        }
+
+        .register-subtitle {
+            font-size: 0.95rem;
+        }
+
+        .form-section {
+            padding: 1.25rem;
+        }
+        }
+    </style>
+{% endblock %}
 
 
 

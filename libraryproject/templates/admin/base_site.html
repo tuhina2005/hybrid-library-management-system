@@ -1,0 +1,180 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Library Management System') }}{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Custom Admin Styles */
+    #header {
+        background: #2c3e50;
+        color: white;
+        padding: 15px 20px;
+    }
+
+    #branding h1 {
+        color: white;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .module h2, .module caption, .inline-group h2 {
+        background: #34495e;
+        color: white;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    div.breadcrumbs {
+        background: #3498db;
+        padding: 15px 20px;
+        font-size: 14px;
+    }
+
+    .submit-row input {
+        background: #2ecc71;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    .submit-row input:hover {
+        background: #27ae60;
+    }
+
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #3498db;
+        padding: 10px 15px;
+        border-radius: 4px;
+        color: white;
+        font-size: 14px;
+    }
+
+    .button:hover, input[type=submit]:hover, input[type=button]:hover {
+        background: #2980b9;
+    }
+
+    .button.default, input[type=submit].default {
+        background: #2ecc71;
+    }
+
+    .button.default:hover, input[type=submit].default:hover {
+        background: #27ae60;
+    }
+
+    /* Form styling */
+    form .aligned p, form .aligned ul {
+        margin-left: 0;
+        padding-left: 0;
+        margin-bottom: 20px;
+    }
+
+    .aligned label {
+        display: block;
+        padding: 8px 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+    form input, form textarea {
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    /* List page styling */
+    #changelist-form .results {
+        margin-top: 20px;
+    }
+
+    #changelist table {
+        border: 1px solid #ddd;
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    #changelist table th {
+        background: #f5f5f5;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    #changelist table td {
+        padding: 12px;
+        font-size: 14px;
+        border-bottom: 1px solid #eee;
+    }
+
+    #changelist table tr:hover {
+        background: #f9f9f9;
+    }
+
+    /* Dashboard styling */
+    .dashboard #content {
+        width: 100%;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .dashboard .module {
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Messages styling */
+    .messagelist {
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+
+    .messagelist li {
+        padding: 12px 20px;
+        margin: 0 0 10px 0;
+        border-radius: 4px;
+    }
+
+    .messagelist li.success {
+        background: #dff0d8;
+        color: #3c763d;
+    }
+
+    .messagelist li.error {
+        background: #f2dede;
+        color: #a94442;
+    }
+
+    /* Pagination styling */
+    .paginator {
+        margin: 20px 0;
+        font-size: 14px;
+    }
+
+    .paginator a {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin: 0 4px;
+        color: #3498db;
+    }
+
+    .paginator a:hover {
+        background: #f5f5f5;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Library Management System Administration</a>
+</h1>
+{% endblock %} 

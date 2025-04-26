@@ -1,6 +1,92 @@
 # Library Management System
 
-A comprehensive digital library management solution built with Django that helps educational institutions manage their library resources efficiently.
+A comprehensive Library Management System built with Django, featuring user authentication, book management, study room bookings, and digital resources.
+
+## Features
+
+- User Authentication (Login/Register)
+- Book Management
+  - View available books
+  - Request books
+  - Track borrowed books
+- Study Room Booking System
+- Digital Resources Access
+- User Profile Management
+- Admin Dashboard
+
+## Technologies Used
+
+- Python 3.x
+- Django 3.2
+- Bootstrap 5
+- SQLite (Development)
+- HTML5/CSS3
+- JavaScript
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/library-management-system.git
+cd library-management-system
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Run migrations:
+```bash
+python manage.py migrate
+```
+
+5. Create a superuser:
+```bash
+python manage.py createsuperuser
+```
+
+6. Run the development server:
+```bash
+python manage.py runserver
+```
+
+## Project Structure
+
+```
+libraryproject/
+├── libapp/                 # Main application
+│   ├── migrations/        # Database migrations
+│   ├── static/           # Static files (CSS, JS, images)
+│   ├── templates/        # HTML templates
+│   ├── admin.py         # Admin configuration
+│   ├── models.py        # Database models
+│   ├── views.py         # View functions
+│   └── urls.py          # URL routing
+├── libraryproject/       # Project settings
+│   ├── settings.py      # Project settings
+│   ├── urls.py          # Main URL configuration
+│   └── wsgi.py          # WSGI configuration
+└── manage.py            # Django management script
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🚀 Features
 
@@ -50,45 +136,6 @@ A comprehensive digital library management solution built with Django that helps
 - Python 3.x
 - pip (Python package manager)
 - Virtual environment (recommended)
-
-## ⚙️ Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Library-Management-System-Project-.git
-cd Library-Management-System-Project-
-```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Apply database migrations:
-```bash
-cd libraryproject
-python manage.py migrate
-```
-
-5. Create a superuser (admin):
-```bash
-python manage.py createsuperuser
-```
-
-6. Run the development server:
-```bash
-python manage.py runserver
-```
-
-7. Access the application:
-- Main site: http://127.0.0.1:8000/
-- Admin interface: http://127.0.0.1:8000/admin/
 
 ## 🗂️ Project Structure
 

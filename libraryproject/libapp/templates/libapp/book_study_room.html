@@ -34,6 +34,37 @@
                     </div>
                 </div>
 
+                <!-- Availability Information -->
+                <div class="availability-section mb-4">
+                    <h4 class="section-title">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Room Availability
+                    </h4>
+                    {% if existing_bookings %}
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Upcoming Bookings</h5>
+                        <p class="mb-0">This room is already booked for the following dates:</p>
+                        <ul class="booking-list">
+                            {% for booking in existing_bookings %}
+                            <li>
+                                <i class="fas fa-clock me-2"></i>
+                                {{ booking.booking_date|date:"F d, Y" }}
+                                <span class="badge {% if booking.status == 'approved' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ booking.status|title }}
+                                </span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <p class="mt-3 mb-0">Please choose a different date for your booking.</p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        This room is available for booking! No upcoming reservations.
+                    </div>
+                    {% endif %}
+                </div>
+
                 <!-- Booking Form -->
                 <div class="booking-form-container">
                     <form method="post" class="needs-validation" novalidate>
@@ -280,6 +311,38 @@
     .purpose-options {
         grid-template-columns: 1fr;
     }
+}
+
+.availability-section {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.booking-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.booking-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.booking-list li:last-child {
+    border-bottom: none;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
 }
 </style>
 

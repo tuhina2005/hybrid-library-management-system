@@ -371,7 +371,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Book</th>
@@ -382,23 +382,102 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for book in borrowed_books %}
+                                {% for borrowed in borrowed_books %}
                                 <tr>
-                                    <td>{{ book.book.title }}</td>
-                                    <td>{{ book.borrowed_date|date:"d M Y" }}</td>
-                                    <td>{{ book.return_date|date:"d M Y" }}</td>
-                                    <td>₹{{ book.fine }}</td>
                                     <td>
-                                        {% if book.is_returned %}
-                                        <span class="badge bg-success">Returned</span>
+                                        {% if borrowed.book %}
+                                            {{ borrowed.book.book_name }}
                                         {% else %}
-                                        <span class="badge bg-warning">Pending</span>
+                                            {{ borrowed.details.book.book_name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ borrowed.accepted_date|date:"d M Y" }}</td>
+                                    <td>{{ borrowed.return_date|date:"d M Y" }}</td>
+                                    <td>₹{{ borrowed.fine }}</td>
+                                    <td>
+                                        {% now "Y-m-d" as today %}
+                                        {% if borrowed.return_date|date:"Y-m-d" < today %}
+                                            <span class="badge bg-danger">Overdue</span>
+                                        {% elif borrowed.return_date|date:"Y-m-d" == today %}
+                                            <span class="badge bg-warning">Due Today</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">Active</span>
                                         {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center">No books borrowed</td>
+                                    <td colspan="5" class="text-center">No books currently borrowed</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Requests Section -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Book Requests</h5>
+                    <a href="{% url 'view_books' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Request New Book
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Request Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in book_requests %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if request.book.book_image %}
+                                                <img src="{{ request.book.book_image.url }}" alt="{{ request.book.book_name }}"
+                                                     class="me-2" style="width: 40px; height: 56px; object-fit: cover; border-radius: 4px;">
+                                            {% endif %}
+                                            <div>
+                                                <strong>{{ request.book.book_name }}</strong><br>
+                                                <small class="text-muted">{{ request.book.author }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ request.request_date|date:"d M Y" }}</td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif request.status == 'approved' %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif request.status == 'rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <form method="post" action="{% url 'cancel_book_request' request_id=request.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this book request?')">
+                                                    <i class="fas fa-times me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        {% elif request.status == 'rejected' %}
+                                            <a href="{% url 'create_request' request.book.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-redo me-1"></i>Request Again
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No book requests</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -409,4 +488,12 @@
         </div>
     </div>
 </div>
+
+<script>
+function cancelRequest(requestId) {
+    if (confirm('Are you sure you want to cancel this book request?')) {
+        window.location.href = "{% url 'cancel_book_request' request_id=0 %}".replace('0', requestId);
+    }
+}
+</script>
 {% endblock %} 

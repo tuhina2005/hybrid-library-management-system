@@ -1,60 +1,128 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Requested Books</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <h1>Requested Books</h1>
-    <table>
-        <tr>
-            <th>Username</th>
-            <th>Department</th>
-            <th>Phone No</th>
-            <th>Book Name</th>
-            <th>Book Image</th>
-            <th>Author</th>
-            <th>Requested Date</th>
-            <th>Action</th>
-        </tr>
-           {% for request in requested_books %}
-<tr>
-    <td>{{ request.user.username }}</td>
-    <td>{{ request.user.student.department }}</td>
-    <td>{{ request.user.student.phone_no }}</td>
-    <td>{{ request.book.book_name }}</td>
-    <td><img src="{{ request.book.book_image.url }}" alt="{{ request.book.book_name }}" style="width: 50px; height: 50px;"></td>
-    <td>{{ request.book.author }}</td>
-    <td>{{ request.request_date }}</td>
-    <td>
-        <form action="{% url 'accept_book_request' pk=request.pk %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Accept Request</button>
-        </form>
-    </td>
-</tr>
-{% empty %}
-<tr>
-    <td colspan="8">No books requested yet.</td>
-</tr>
-{% endfor %}
+{% extends 'libapp/base.html' %}
 
-    </table>
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+    <div class="page-header mb-5">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="display-4 fw-bold">Requested Books</h1>
+                <p class="lead">Manage book requests from students</p>
+            </div>
+        </div>
+    </div>
+
+    {% if requested_books %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Department</th>
+                    <th>Phone No</th>
+                    <th>Book Name</th>
+                    <th>Book Image</th>
+                    <th>Author</th>
+                    <th>Requested Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requested_books %}
+                <tr>
+                    <td>{{ request.user.username }}</td>
+                    <td>{{ request.user.student.department }}</td>
+                    <td>{{ request.user.student.phone_no }}</td>
+                    <td>{{ request.book.book_name }}</td>
+                    <td>
+                        {% if request.book.book_image %}
+                        <img src="{{ request.book.book_image.url }}" alt="{{ request.book.book_name }}" 
+                             class="book-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                        <i class="fas fa-book fa-2x text-muted"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ request.book.author }}</td>
+                    <td>{{ request.request_date|date:"F d, Y" }}</td>
+                    <td>
+                        <form action="{% url 'accept_book_request' pk=request.pk %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-check me-1"></i>Accept
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info d-flex align-items-center p-4">
+        <i class="fas fa-info-circle me-3 fa-2x"></i>
+        <div>No books have been requested yet.</div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.book-thumbnail {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+</style>
+{% endblock %}
 
 
 

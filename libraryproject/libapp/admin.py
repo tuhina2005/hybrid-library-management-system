@@ -20,8 +20,10 @@ class BookAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 class BookRequestAdmin(admin.ModelAdmin):
-    list_display = ('user', 'book', 'request_date')
-    list_filter = ('request_date',)
+    list_display = ('user', 'book', 'request_date', 'status')
+    list_display_links = ('user', 'book')
+    list_editable = ('status',)
+    list_filter = ('request_date', 'status')
     search_fields = ('user__username', 'book__book_name')
     ordering = ('-request_date',)
     list_per_page = 20
@@ -107,6 +109,27 @@ class DigitalResourceAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author', 'description')
     ordering = ('-upload_date',)
     list_per_page = 20
+    
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'author', 'type', 'description')
+        }),
+        ('Files', {
+            'fields': ('file', 'cover_image'),
+            'classes': ('wide',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if 'file' in form.changed_data or 'cover_image' in form.changed_data:
+            # If file or cover image is being updated, handle old files
+            if change:
+                old_obj = self.model.objects.get(pk=obj.pk)
+                if 'file' in form.changed_data and old_obj.file:
+                    old_obj.file.delete(False)
+                if 'cover_image' in form.changed_data and old_obj.cover_image:
+                    old_obj.cover_image.delete(False)
+        super().save_model(request, obj, form, change)
 
 class DigitalEngagementRecordAdmin(admin.ModelAdmin):
     list_display = ('user', 'resource', 'download_date', 'ip_address')

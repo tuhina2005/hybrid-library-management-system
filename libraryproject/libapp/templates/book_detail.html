@@ -15,7 +15,7 @@
                 <div class="card shadow-sm">
                     <div class="book-image-wrapper">
                         {% if book.book_image %}
-                        <img src="{{ book.book_image.url }}" class="card-img-top" alt="{{ book.book_name }}" style="height: 400px; object-fit: cover;">
+                        <img src="{{ book.book_image.url }}" class="card-img-top" alt="{{ book.book_name }}">
                         {% else %}
                         <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
                             <i class="fas fa-book fa-4x text-muted"></i>
@@ -89,9 +89,20 @@
 .book-image-wrapper {
     position: relative;
     overflow: hidden;
+    background: #f8f9fa;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .book-image-wrapper img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    padding: 1rem;
     transition: transform 0.3s ease;
 }
 

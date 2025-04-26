@@ -1,15 +1,15 @@
 from django.conf.urls import url
-from django.contrib.auth.views import logout
+from django.contrib.auth.views import LogoutView
 from .views import (IndexView, UserRegisterView, student_login, ProfileView, add_book, edit_profile, view_books,
                     book_detail, CreateBookRequestView, RequestBooksView, AcceptBookRequestView, AcceptedBooksView,
                     borrowed_books, borrowed_history, study_room_list, book_study_room, my_bookings, cancel_booking,
-                    digital_resources, download_resource)
+                    digital_resources, download_resource, user_borrow_history, cancel_book_request)
 
 urlpatterns = [
     url(r'^index/$', IndexView.as_view(), name='index'),
     url(r'^register/$', UserRegisterView.as_view(), name='user_register'),
     url(r'^login/$', student_login, name='student_login'),
-    url(r'^logout/$', logout, {'next_page': 'student_login'}, name='logout'),
+    url(r'^logout/$', LogoutView.as_view(next_page='student_login'), name='logout'),
     url(r'^profile/$', ProfileView.as_view(), name='profile'),
     url(r'^add_book/$', add_book, name='add_book'),
     url(r'^view-books/$', view_books, name='view_books'),
@@ -28,6 +28,8 @@ urlpatterns = [
     url(r'^booking/(?P<booking_id>\d+)/cancel/$', cancel_booking, name='cancel_booking'),
     url(r'^digital-resources/$', digital_resources, name='digital_resources'),
     url(r'^download/(?P<resource_id>\d+)/$', download_resource, name='download_resource'),
+    url(r'^user-borrow-history/$', user_borrow_history, name='user_borrow_history'),
+    url(r'^request/(?P<request_id>\d+)/cancel/$', cancel_book_request, name='cancel_book_request'),
 ]
 
 

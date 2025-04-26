@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="hero-section">
+    <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1 class="hero-title">Welcome to Your Digital Library Hub</h1>
         <p class="hero-subtitle">Discover, Learn, and Manage Your Library Resources</p>
@@ -27,6 +28,10 @@
 
 <div class="features-section">
     <div class="container">
+        <div class="section-header">
+            <h2>Explore Our Features</h2>
+            <p>Everything you need to enhance your learning experience</p>
+        </div>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="feature-card">
@@ -35,6 +40,9 @@
                     </div>
                     <h3>Digital Catalog</h3>
                     <p>Access thousands of books and resources from our extensive digital collection.</p>
+                    <a href="{% url 'view_books' %}" class="feature-link">
+                        Browse Books <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-md-4">
@@ -44,6 +52,9 @@
                     </div>
                     <h3>Study Rooms</h3>
                     <p>Book private study rooms for individual or group study sessions.</p>
+                    <a href="{% url 'study_room_list' %}" class="feature-link">
+                        View Rooms <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
             <div class="col-md-4">
@@ -53,6 +64,9 @@
                     </div>
                     <h3>Digital Resources</h3>
                     <p>Access online journals, research papers, and educational content.</p>
+                    <a href="{% url 'digital_resources' %}" class="feature-link">
+                        Explore Resources <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -60,10 +74,21 @@
 </div>
 
 <style>
+    :root {
+        --primary-color: #4F46E5;
+        --primary-dark: #4338CA;
+        --secondary-color: #10B981;
+        --accent-color: #F59E0B;
+        --text-dark: #1F2937;
+        --text-light: #6B7280;
+        --background-light: #F3F4F6;
+        --white: #FFFFFF;
+    }
+
     .hero-section {
         position: relative;
         min-height: 100vh;
-        background-image: linear-gradient(rgba(26, 28, 30, 0.95), rgba(26, 28, 30, 0.95)), url('{% static "libapp/images/library-bg.jpg" %}');
+        background-image: url('{% static "libapp/images/library-bg.jpg" %}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -72,167 +97,229 @@
         justify-content: center;
         text-align: center;
         padding: 6rem 1rem 4rem;
-        margin-top: -76px; /* Offset for fixed navbar */
+        margin-top: -76px;
+        overflow: hidden;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%);
+        z-index: 1;
     }
 
     .hero-content {
+        position: relative;
+        z-index: 2;
         max-width: 900px;
         margin: 0 auto;
+        animation: fadeInUp 1s ease;
     }
 
     .hero-title {
-        font-size: 4rem;
-        font-weight: 700;
-        color: white;
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        color: var(--white);
         margin-bottom: 1.5rem;
         letter-spacing: -0.022em;
         line-height: 1.2;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .hero-subtitle {
-        font-size: 1.5rem;
+        font-size: clamp(1.25rem, 2vw, 1.5rem);
         color: rgba(255, 255, 255, 0.9);
         margin-bottom: 2.5rem;
         letter-spacing: -0.011em;
         line-height: 1.4;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     .hero-buttons {
         display: flex;
         gap: 1.5rem;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     .btn-primary, .btn-secondary, .btn-admin {
-        padding: 1.25rem 2.5rem;
+        padding: 1rem 2rem;
         border-radius: 12px;
         font-weight: 600;
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .btn-primary {
-        background: var(--primary-color);
-        color: white;
+        background: var(--white);
+        color: var(--primary-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary:hover {
-        background: #5b4cc4;
+        background: var(--background-light);
         transform: translateY(-2px);
-        color: white;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        color: var(--primary-dark);
     }
 
     .btn-secondary {
         background: rgba(255, 255, 255, 0.1);
-        color: white;
+        color: var(--white);
         backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .btn-secondary:hover {
         background: rgba(255, 255, 255, 0.2);
         transform: translateY(-2px);
-        color: white;
+        color: var(--white);
+        border-color: rgba(255, 255, 255, 0.3);
     }
 
     .btn-admin {
-        background: #dc3545;
-        color: white;
+        background: var(--accent-color);
+        color: var(--white);
+        box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
     }
 
     .btn-admin:hover {
-        background: #c82333;
+        background: #E3A008;
         transform: translateY(-2px);
-        color: white;
+        box-shadow: 0 8px 15px rgba(245, 158, 11, 0.3);
+        color: var(--white);
     }
 
     .features-section {
-        background: white;
+        background: var(--background-light);
         padding: 6rem 0;
     }
 
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .section-header p {
+        font-size: 1.25rem;
+        color: var(--text-light);
+    }
+
     .feature-card {
-        background: white;
+        background: var(--white);
         padding: 2.5rem;
         border-radius: 20px;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         height: 100%;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
     }
 
     .feature-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
     .feature-icon {
-        width: 100px;
-        height: 100px;
-        background: var(--primary-color);
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 2rem;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1);
     }
 
     .feature-icon i {
-        font-size: 2.5rem;
-        color: white;
+        font-size: 2rem;
+        color: var(--white);
     }
 
     .feature-card h3 {
         color: var(--text-dark);
-        font-size: 1.75rem;
-        margin-bottom: 1.25rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
     }
 
     .feature-card p {
         color: var(--text-light);
-        font-size: 1.15rem;
+        font-size: 1.125rem;
         line-height: 1.6;
-        margin: 0;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .feature-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .feature-link:hover {
+        color: var(--primary-dark);
+        gap: 0.75rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     @media (max-width: 768px) {
-        .hero-title {
-            font-size: 3rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.35rem;
-        }
-
         .hero-buttons {
             flex-direction: column;
+            gap: 1rem;
         }
 
         .btn-primary, .btn-secondary, .btn-admin {
             width: 100%;
             justify-content: center;
-            padding: 1.15rem 2rem;
-            font-size: 1.2rem;
-        }
-
-        .features-section {
-            padding: 4rem 0;
         }
 
         .feature-card {
             padding: 2rem;
         }
 
-        .feature-card h3 {
-            font-size: 1.6rem;
+        .feature-icon {
+            width: 60px;
+            height: 60px;
         }
 
-        .feature-card p {
-            font-size: 1.1rem;
+        .feature-icon i {
+            font-size: 1.5rem;
         }
     }
 </style>

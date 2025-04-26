@@ -23,6 +23,10 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.db import models
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.models import User
+from django.db.models import Count, Q, Sum
+from django.contrib.admin.views.decorators import staff_member_required
 
 # Assuming you have a Book model
 
@@ -126,6 +130,23 @@ class ProfileView(LoginRequiredMixin, DetailView):
             is_returned=False
         ).aggregate(total_fines=models.Sum('fine'))['total_fines'] or 0
         context['total_fines'] = total_fines
+
+        # Add currently borrowed books
+        current_borrowed = AcceptedBookRequest.objects.filter(
+            models.Q(user=self.request.user) | models.Q(details__user=self.request.user),
+            is_returned=False
+        ).order_by('-accepted_date')
+        context['borrowed_books'] = current_borrowed
+        
+        # Add book requests (pending and rejected)
+        book_requests = BookRequest.objects.filter(
+            user=self.request.user
+        ).order_by('-request_date')
+        context['book_requests'] = book_requests
+        
+        # Add current date for template comparisons
+        context['current_date'] = timezone.now().date()
+        
         return context
 
     def get(self, request, *args, **kwargs):
@@ -235,6 +256,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import BookRequest, AcceptedBookRequest
 
+@method_decorator(csrf_protect, name='dispatch')
 class AcceptBookRequestView(View):
 
     def get(self, request, pk):
@@ -283,21 +305,44 @@ class AcceptedBooksView(View):
 
 @login_required
 def borrowed_books(request):
-    # Get currently borrowed books (accepted requests that haven't been returned)
-    current_borrowed = AcceptedBookRequest.objects.filter(
-        details__user=request.user,
-        return_date__gte=timezone.now()
-    ).order_by('-accepted_date')
+    # Get filter parameters
+    status_filter = request.GET.get('status', 'all')  # all, current, returned
+    sort_by = request.GET.get('sort', '-accepted_date')  # -accepted_date, return_date, book__book_name
+    
+    # Get all borrowed books for the user
+    borrowed_books = AcceptedBookRequest.objects.filter(
+        models.Q(user=request.user) | models.Q(details__user=request.user)
+    )
+    
+    # Apply status filter
+    if status_filter == 'current':
+        borrowed_books = borrowed_books.filter(is_returned=False)
+    elif status_filter == 'returned':
+        borrowed_books = borrowed_books.filter(is_returned=True)
+    
+    # Apply sorting
+    borrowed_books = borrowed_books.order_by(sort_by)
+    
+    # Prepare sort options for template
+    sort_options = [
+        ('-accepted_date', 'Latest First'),
+        ('accepted_date', 'Oldest First'),
+        ('return_date', 'Return Date'),
+        ('-fine', 'Highest Fine'),
+    ]
     
     return render(request, 'borrowed_books.html', {
-        'borrowed_books': current_borrowed
+        'borrowed_books': borrowed_books,
+        'current_status': status_filter,
+        'current_sort': sort_by,
+        'sort_options': sort_options
     })
 
 @login_required
 def borrowed_history(request):
     # Get all borrowed books history
     history = AcceptedBookRequest.objects.filter(
-        details__user=request.user
+        models.Q(user=request.user) | models.Q(details__user=request.user)
     ).order_by('-accepted_date')
     
     return render(request, 'borrowed_history.html', {
@@ -317,18 +362,45 @@ def book_study_room(request, room_id):
         form = RoomBookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
-            booking.user = request.user  # Set the user to the currently logged in user
-            booking.room = room
-            booking.status = 'pending'
-            booking.save()
-            messages.success(request, 'Your room booking request has been submitted and is pending approval.')
-            return redirect('my_bookings')
+            booking_date = form.cleaned_data['booking_date']
+            
+            # Check if room is already booked for this date
+            existing_booking = RoomBooking.objects.filter(
+                room=room,
+                booking_date=booking_date,
+                status__in=['pending', 'approved']
+            ).exists()
+            
+            if existing_booking:
+                messages.error(
+                    request,
+                    f'Sorry, {room.room_name} is not available on {booking_date.strftime("%B %d, %Y")}. '
+                    'Please choose a different date or room.'
+                )
+            else:
+                booking.user = request.user
+                booking.room = room
+                booking.status = 'pending'
+                booking.save()
+                messages.success(
+                    request,
+                    'Your room booking request has been submitted and is pending approval.'
+                )
+                return redirect('my_bookings')
     else:
         form = RoomBookingForm(initial={'room': room})
     
+    # Get existing bookings for this room to show availability
+    existing_bookings = RoomBooking.objects.filter(
+        room=room,
+        booking_date__gte=timezone.now().date(),
+        status__in=['pending', 'approved']
+    ).order_by('booking_date')
+    
     return render(request, 'libapp/book_study_room.html', {
         'form': form,
-        'room': room
+        'room': room,
+        'existing_bookings': existing_bookings
     })
 
 @login_required
@@ -341,7 +413,7 @@ def my_bookings(request):
 
 @login_required
 def cancel_booking(request, booking_id):
-    booking = get_object_or_404(RoomBooking, id=booking_id, student__user=request.user)
+    booking = get_object_or_404(RoomBooking, id=booking_id, user=request.user)
     if booking.status == 'pending' or booking.status == 'approved':
         if booking.booking_date >= date.today():
             booking.status = 'cancelled'
@@ -401,8 +473,8 @@ def digital_resources(request):
     })
 
 @login_required
-def download_resource(request, resource_number):
-    resource = get_object_or_404(DigitalResource, resource_number=resource_number)
+def download_resource(request, resource_id):
+    resource = get_object_or_404(DigitalResource, resource_number=resource_id)
     
     # Create engagement record
     DigitalEngagementRecord.objects.create(
@@ -415,6 +487,94 @@ def download_resource(request, resource_number):
     response = HttpResponse(resource.file, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment; filename="{resource.file.name}"'
     return response
+
+@staff_member_required
+def user_borrow_history(request):
+    search_query = request.GET.get('search', '')
+    sort_by = request.GET.get('sort', 'username')
+
+    # Get all users who have borrowed books
+    users = User.objects.filter(
+        Q(acceptedbookrequest__isnull=False) | 
+        Q(bookrequest__details__isnull=False)
+    ).distinct()
+
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # Sort users based on selected criteria
+    if sort_by == 'total_books':
+        users = users.annotate(
+            total_books=Count('acceptedbookrequest') + Count('bookrequest__details')
+        ).order_by('-total_books')
+    elif sort_by == 'overdue':
+        users = users.annotate(
+            overdue_count=Count(
+                'acceptedbookrequest',
+                filter=Q(acceptedbookrequest__return_date__lt=timezone.now())
+            )
+        ).order_by('-overdue_count')
+    else:  # Default sort by username
+        users = users.order_by('username')
+
+    user_histories = []
+    for user in users:
+        # Get all borrowed books for the user
+        borrowed_books = AcceptedBookRequest.objects.filter(
+            Q(user=user) | Q(details__user=user)
+        ).select_related('book')
+
+        # Calculate statistics
+        total_books = borrowed_books.count()
+        current_books = borrowed_books.filter(
+            Q(return_date__isnull=True) | 
+            Q(return_date__gt=timezone.now())
+        ).count()
+        overdue_books = borrowed_books.filter(
+            return_date__lt=timezone.now()
+        ).count()
+        total_fine = borrowed_books.aggregate(
+            total_fine=Sum('fine')
+        )['total_fine'] or 0
+
+        user_histories.append({
+            'user': user,
+            'total_books': total_books,
+            'current_books': current_books,
+            'overdue_books': overdue_books,
+            'total_fine': total_fine,
+            'borrowed_books': borrowed_books
+        })
+
+    context = {
+        'user_histories': user_histories,
+        'search_query': search_query,
+        'sort_by': sort_by
+    }
+    return render(request, 'libapp/user_borrow_history.html', context)
+
+@login_required
+def cancel_book_request(request, request_id):
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request method. Please use the cancel button.')
+        return redirect('profile')
+        
+    try:
+        book_request = get_object_or_404(BookRequest, id=request_id, user=request.user)
+        if book_request.status == 'pending':
+            book_name = book_request.book.book_name  # Store book name before deletion
+            book_request.delete()
+            messages.success(request, f'Book request for "{book_name}" cancelled successfully.')
+        else:
+            messages.error(request, 'This request cannot be cancelled.')
+    except Exception as e:
+        messages.error(request, f'Error cancelling request: {str(e)}')
+    return redirect('profile')
 
 
 

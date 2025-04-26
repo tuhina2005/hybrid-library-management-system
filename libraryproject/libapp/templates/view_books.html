@@ -1,28 +1,24 @@
 {% extends 'libapp/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="page-header mb-5">
+<div class="container mt-4">
+    <div class="page-header mb-4">
         <div class="header-content">
-            <div class="header-icon">
-                <i class="fas fa-book-reader"></i>
-            </div>
             <div class="header-text">
-                <h1 class="display-4 fw-bold">Library Collection</h1>
-                <p class="lead">Discover your next favorite book from our curated collection</p>
+                <h1 class="h2 mb-2">Library Collection</h1>
+                <p class="text-muted mb-0">Discover your next favorite book from our curated collection</p>
             </div>
+            {% if user.is_staff %}
             <div class="header-action">
-                {% if user.is_staff %}
-                <a href="{% url 'add_book' %}" class="btn btn-primary btn-lg">
+                <a href="{% url 'add_book' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Add New Book
                 </a>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
-        <div class="header-decoration"></div>
     </div>
 
-    <div class="search-section mb-5">
+    <div class="search-section mb-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="search-wrapper">
@@ -38,7 +34,7 @@
         </div>
     </div>
 
-    <div class="row g-4 book-grid">
+    <div class="row g-4">
         {% for book in books %}
         <div class="col-md-6 col-lg-4 book-item">
             <div class="book-card card h-100">
@@ -50,11 +46,6 @@
                         <i class="fas fa-book fa-3x"></i>
                     </div>
                     {% endif %}
-                    <div class="book-overlay">
-                        <a href="{% url 'book_detail' book.id %}" class="btn btn-light btn-lg">
-                            <i class="fas fa-info-circle me-2"></i>View Details
-                        </a>
-                    </div>
                 </div>
                 
                 <div class="card-body d-flex flex-column">
@@ -117,162 +108,80 @@
 
 <style>
 .page-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-    border-radius: 20px;
-    padding: 2.5rem;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 1.5rem;
     position: relative;
-    overflow: hidden;
-    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .header-content {
-    position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
-    gap: 2rem;
-}
-
-.header-icon {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.header-icon i {
-    font-size: 2.5rem;
-    color: white;
-}
-
-.header-text {
-    flex: 1;
-    color: white;
+    justify-content: space-between;
+    gap: 1.5rem;
 }
 
 .header-text h1 {
-    margin-bottom: 0.5rem;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-text .lead {
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 0;
-}
-
-.header-action {
-    flex-shrink: 0;
-}
-
-.header-decoration {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: 
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    z-index: 1;
-}
-
-.btn-primary {
-    background: white;
     color: #2c3e50;
-    border: none;
     font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary:hover {
-    background: rgba(255, 255, 255, 0.9);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-@media (max-width: 768px) {
-    .page-header {
-        padding: 1.5rem;
-    }
-
-    .header-content {
-        flex-direction: column;
-        text-align: center;
-        gap: 1.5rem;
-    }
-
-    .header-icon {
-        width: 60px;
-        height: 60px;
-    }
-
-    .header-icon i {
-        font-size: 2rem;
-    }
-
-    .header-text h1 {
-        font-size: 2rem;
-    }
-}
-
-.decorative-line {
-    width: 100px;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
-    margin: 1.5rem auto;
-    border-radius: 2px;
+    letter-spacing: -0.02em;
 }
 
 .search-wrapper {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
-    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .search-wrapper .input-group {
-    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
     overflow: hidden;
-}
-
-.search-wrapper .form-control {
-    font-size: 1.1rem;
-    padding: 0.8rem 1rem;
-    border-color: #dee2e6;
 }
 
 .search-wrapper .input-group-text {
-    border-color: #dee2e6;
+    border: none;
+    padding-left: 1rem;
+}
+
+.search-wrapper .form-control {
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.search-wrapper .form-control:focus {
+    box-shadow: none;
 }
 
 .book-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: none;
-    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
     overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .book-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .book-image-wrapper {
-    position: relative;
-    height: 300px;
+    height: 240px;
     overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .book-image-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 1rem;
 }
 
 .placeholder-image {
@@ -281,83 +190,87 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
     color: #adb5bd;
-}
-
-.book-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.book-card:hover .book-overlay {
-    opacity: 1;
+    background: #f8f9fa;
 }
 
 .book-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: #2c3e50;
+    margin-bottom: 0.5rem;
 }
 
 .book-author {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: #6c757d;
     margin-bottom: 1rem;
 }
 
 .book-description {
     font-size: 0.9rem;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 .status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-radius: 30px;
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
     font-weight: 500;
-    font-size: 0.9rem;
 }
 
 .status-badge.available {
-    background: rgba(var(--bs-success-rgb), 0.1);
-    color: var(--bs-success);
+    background-color: #e8f5e9;
+    color: #2e7d32;
 }
 
 .status-badge.unavailable {
-    background: rgba(var(--bs-danger-rgb), 0.1);
-    color: var(--bs-danger);
+    background-color: #ffebee;
+    color: #c62828;
 }
 
 .btn {
-    padding: 0.75rem 1.25rem;
+    padding: 0.5rem 1rem;
     font-weight: 500;
-    border-radius: 10px;
+    border-radius: 6px;
+}
+
+.btn-primary {
+    background-color: #3949ab;
+    border-color: #3949ab;
+}
+
+.btn-primary:hover {
+    background-color: #303f9f;
+    border-color: #303f9f;
+}
+
+.btn-outline-primary {
+    color: #3949ab;
+    border-color: #3949ab;
+}
+
+.btn-outline-primary:hover {
+    background-color: #3949ab;
+    border-color: #3949ab;
 }
 
 .empty-state {
-    padding: 3rem;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+    padding: 3rem 1.5rem;
 }
 
 .empty-icon {
-    color: #dee2e6;
+    color: #adb5bd;
 }
 
 @media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
     .book-image-wrapper {
         height: 200px;
     }

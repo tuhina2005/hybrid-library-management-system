@@ -1,0 +1,162 @@
+{% extends 'libapp/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h2><i class="fas fa-history"></i> User Borrowing History</h2>
+        <p class="text-muted">View and manage borrowing histories of all users</p>
+    </div>
+
+    <!-- Search and Sort Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="search" class="form-label">Search Users</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search_query }}" placeholder="Search by username, name, or email">
+                </div>
+                <div class="col-md-4">
+                    <label for="sort" class="form-label">Sort By</label>
+                    <select class="form-select" id="sort" name="sort">
+                        <option value="username" {% if sort_by == 'username' %}selected{% endif %}>Username (A-Z)</option>
+                        <option value="total_books" {% if sort_by == 'total_books' %}selected{% endif %}>Total Books Borrowed</option>
+                        <option value="overdue" {% if sort_by == 'overdue' %}selected{% endif %}>Overdue Books</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Histories -->
+    {% if user_histories %}
+        {% for history in user_histories %}
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user"></i> {{ history.user.get_full_name|default:history.user.username }}
+                        </h5>
+                        <div class="stats">
+                            <span class="badge bg-primary" title="Total Books">
+                                <i class="fas fa-book"></i> {{ history.total_books }}
+                            </span>
+                            <span class="badge bg-info" title="Currently Borrowed">
+                                <i class="fas fa-bookmark"></i> {{ history.current_books }}
+                            </span>
+                            <span class="badge {% if history.overdue_books > 0 %}bg-danger{% else %}bg-success{% endif %}" 
+                                  title="Overdue Books">
+                                <i class="fas fa-exclamation-circle"></i> {{ history.overdue_books }}
+                            </span>
+                            {% if history.total_fine > 0 %}
+                                <span class="badge bg-warning text-dark" title="Total Fines">
+                                    <i class="fas fa-dollar-sign"></i> {{ history.total_fine }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Borrowed Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                    <th>Fine</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in history.borrowed_books %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if book.book.book_image %}
+                                                    <img src="{{ book.book.book_image.url }}" alt="{{ book.book.book_name }}"
+                                                         class="book-thumbnail me-2">
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ book.book.book_name }}</strong><br>
+                                                    <small class="text-muted">{{ book.book.author }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ book.accepted_date|date:"M d, Y" }}</td>
+                                        <td>{{ book.return_date|date:"M d, Y"|default:"Not Set" }}</td>
+                                        <td>
+                                            {% if book.is_returned %}
+                                                <span class="badge bg-success">Returned</span>
+                                            {% elif book.return_date and book.return_date < current_date %}
+                                                <span class="badge bg-danger">Overdue</span>
+                                            {% else %}
+                                                <span class="badge bg-info">Active</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if book.fine > 0 %}
+                                                <span class="text-danger">${{ book.fine }}</span>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No borrowing history found for the specified criteria.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.book-thumbnail {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.stats .badge {
+    margin-left: 0.5rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,0.125);
+}
+
+.table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+</style>
+{% endblock %} 

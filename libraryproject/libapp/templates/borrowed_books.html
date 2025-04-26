@@ -2,10 +2,46 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="text-center mb-5">
-        <h2 class="display-4 fw-bold">Currently Borrowed Books</h2>
-        <p class="lead text-muted">Manage your borrowed books and return dates</p>
-        <div class="decorative-line"></div>
+    <div class="page-header mb-5">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="display-4 fw-bold">Borrowed Books</h1>
+                <p class="lead">View and manage all your borrowed books</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Sort Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="btn-group" role="group" aria-label="Filter books">
+                <a href="?status=all{% if current_sort != '-accepted_date' %}&sort={{ current_sort }}{% endif %}" 
+                   class="btn btn-outline-primary {% if current_status == 'all' %}active{% endif %}">
+                    All Books
+                </a>
+                <a href="?status=current{% if current_sort != '-accepted_date' %}&sort={{ current_sort }}{% endif %}" 
+                   class="btn btn-outline-primary {% if current_status == 'current' %}active{% endif %}">
+                    Currently Borrowed
+                </a>
+                <a href="?status=returned{% if current_sort != '-accepted_date' %}&sort={{ current_sort }}{% endif %}" 
+                   class="btn btn-outline-primary {% if current_status == 'returned' %}active{% endif %}">
+                    Returned Books
+                </a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" onchange="window.location.href=this.value">
+                {% for sort_value, sort_label in sort_options %}
+                <option value="?status={{ current_status }}&sort={{ sort_value }}" 
+                        {% if current_sort == sort_value %}selected{% endif %}>
+                    Sort by: {{ sort_label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
 
     {% if borrowed_books %}
@@ -13,28 +49,43 @@
         {% for borrowed in borrowed_books %}
         <div class="col-md-6 col-lg-4">
             <div class="book-card card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="book-header mb-4">
-                        <div class="book-image-wrapper mb-3">
-                            {% if borrowed.details.book.book_image %}
-                            <img src="{{ borrowed.details.book.book_image.url }}" alt="{{ borrowed.details.book.book_name }}" class="book-image">
-                            {% else %}
-                            <div class="placeholder-image">
-                                <i class="fas fa-book fa-3x"></i>
-                            </div>
-                            {% endif %}
+                <div class="book-image-container">
+                    {% if borrowed.book %}
+                        {% if borrowed.book.book_image %}
+                        <img src="{{ borrowed.book.book_image.url }}" alt="{{ borrowed.book.book_name }}" class="card-img-top book-cover">
+                        {% else %}
+                        <div class="placeholder-image">
+                            <i class="fas fa-book fa-3x"></i>
                         </div>
-                        <h5 class="book-title">{{ borrowed.details.book.book_name }}</h5>
-                        <p class="book-author text-muted">
-                            <i class="fas fa-user-edit me-1"></i>{{ borrowed.details.book.author }}
-                        </p>
-                    </div>
+                        {% endif %}
+                    {% else %}
+                        {% if borrowed.details.book.book_image %}
+                        <img src="{{ borrowed.details.book.book_image.url }}" alt="{{ borrowed.details.book.book_name }}" class="card-img-top book-cover">
+                        {% else %}
+                        <div class="placeholder-image">
+                            <i class="fas fa-book fa-3x"></i>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title book-title">
+                        {% if borrowed.book %}
+                            {{ borrowed.book.book_name }}
+                        {% else %}
+                            {{ borrowed.details.book.book_name }}
+                        {% endif %}
+                    </h5>
+                    <p class="book-author text-muted">
+                        <i class="fas fa-user-edit me-2"></i>
+                        {% if borrowed.book %}
+                            {{ borrowed.book.author }}
+                        {% else %}
+                            {{ borrowed.details.book.author }}
+                        {% endif %}
+                    </p>
 
-                    <div class="book-details">
-                        <div class="detail-item">
-                            <i class="fas fa-hashtag text-primary"></i>
-                            <span>Book ID: {{ borrowed.details.book.book_id }}</span>
-                        </div>
+                    <div class="book-details mt-3">
                         <div class="detail-item">
                             <i class="fas fa-calendar-plus text-success"></i>
                             <span>Borrowed: {{ borrowed.accepted_date|date:"F d, Y" }}</span>
@@ -43,6 +94,12 @@
                             <i class="fas fa-calendar-times text-warning"></i>
                             <span>Return by: {{ borrowed.return_date|date:"F d, Y" }}</span>
                         </div>
+                        {% if borrowed.is_returned %}
+                        <div class="detail-item returned-info">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Returned on: {{ borrowed.returned_date|date:"F d, Y" }}</span>
+                        </div>
+                        {% endif %}
                         {% if borrowed.fine > 0 %}
                         <div class="detail-item fine-alert">
                             <i class="fas fa-exclamation-circle text-danger"></i>
@@ -51,23 +108,32 @@
                         {% endif %}
                     </div>
 
-                    {% now "Y-m-d" as today %}
-                    {% if borrowed.return_date|date:"Y-m-d" < today %}
-                    <div class="status-badge overdue">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
-                        Overdue
+                    <div class="mt-auto pt-3">
+                        {% if borrowed.is_returned %}
+                        <div class="status-badge returned">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Returned
+                        </div>
+                        {% else %}
+                            {% now "Y-m-d" as today %}
+                            {% if borrowed.return_date|date:"Y-m-d" < today %}
+                            <div class="status-badge overdue">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Overdue
+                            </div>
+                            {% elif borrowed.return_date|date:"Y-m-d" == today %}
+                            <div class="status-badge due-today">
+                                <i class="fas fa-clock me-1"></i>
+                                Due Today
+                            </div>
+                            {% else %}
+                            <div class="status-badge active">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Active
+                            </div>
+                            {% endif %}
+                        {% endif %}
                     </div>
-                    {% elif borrowed.return_date|date:"Y-m-d" == today %}
-                    <div class="status-badge due-today">
-                        <i class="fas fa-clock me-1"></i>
-                        Due Today
-                    </div>
-                    {% else %}
-                    <div class="status-badge active">
-                        <i class="fas fa-check-circle me-1"></i>
-                        Active
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -78,8 +144,17 @@
         <div class="empty-icon mb-4">
             <i class="fas fa-books fa-4x text-muted"></i>
         </div>
-        <h3 class="h4 mb-3">No Books Currently Borrowed</h3>
-        <p class="text-muted mb-4">You haven't borrowed any books yet. Visit our library to discover amazing books!</p>
+        <h3 class="h4 mb-3">No Books Found</h3>
+        <p class="text-muted mb-4">
+            {% if current_status == 'current' %}
+                You don't have any currently borrowed books.
+            {% elif current_status == 'returned' %}
+                You haven't returned any books yet.
+            {% else %}
+                You haven't borrowed any books yet.
+            {% endif %}
+            Visit our library to discover amazing books!
+        </p>
         <a href="{% url 'view_books' %}" class="btn btn-primary btn-lg">
             <i class="fas fa-book me-2"></i>Browse Books
         </a>
@@ -88,18 +163,43 @@
 </div>
 
 <style>
-.decorative-line {
-    width: 100px;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, var(--bs-primary), transparent);
-    margin: 1.5rem auto;
-    border-radius: 2px;
+.page-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon i {
+    font-size: 2rem;
+    color: white;
 }
 
 .book-card {
     border: none;
     border-radius: 15px;
     transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
 }
 
 .book-card:hover {
@@ -107,19 +207,20 @@
     box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08) !important;
 }
 
-.book-image-wrapper {
-    width: 120px;
-    height: 160px;
-    margin: 0 auto;
+.book-image-container {
+    height: 300px;
     overflow: hidden;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.book-image {
+.book-cover {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 1rem;
 }
 
 .placeholder-image {
@@ -133,28 +234,29 @@
 }
 
 .book-title {
+    font-size: 1.25rem;
     font-weight: 600;
-    text-align: center;
     margin-bottom: 0.5rem;
+    color: #2c3e50;
 }
 
 .book-author {
-    text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
 }
 
 .book-details {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
 }
 
 .detail-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.5rem;
+    padding: 0.75rem;
     background: #f8f9fa;
     border-radius: 8px;
     font-size: 0.9rem;
@@ -177,7 +279,7 @@
     border-radius: 30px;
     font-weight: 500;
     font-size: 0.9rem;
-    margin-top: auto;
+    width: fit-content;
 }
 
 .status-badge.active {
@@ -195,6 +297,15 @@
     color: var(--bs-danger);
 }
 
+.status-badge.returned {
+    background: rgba(var(--bs-success-rgb), 0.1);
+    color: var(--bs-success);
+}
+
+.returned-info {
+    background: rgba(var(--bs-success-rgb), 0.1);
+}
+
 .empty-state {
     max-width: 500px;
     margin: 3rem auto;
@@ -209,6 +320,32 @@
     padding: 0.75rem 1.5rem;
     font-weight: 500;
     border-radius: 10px;
+}
+
+.btn-group .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+.form-select {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .book-image-container {
+        height: 200px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-icon {
+        margin: 0 auto;
+    }
 }
 </style>
 {% endblock %} 
